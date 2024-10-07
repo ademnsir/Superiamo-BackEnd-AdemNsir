@@ -1,3 +1,5 @@
+// controllers/auth.js
+
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
@@ -6,13 +8,11 @@ exports.registerUser = async (req, res) => {
   const { nom, prenom, email, password, dateNaissance, adresse, numeroTelephone } = req.body;
 
   try {
-    // Vérifier si l'utilisateur existe déjà
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "Utilisateur déjà enregistré" });
     }
 
-    // Créer un nouvel utilisateur avec le mot de passe haché
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       nom,
@@ -24,7 +24,6 @@ exports.registerUser = async (req, res) => {
       numeroTelephone,
     });
 
-    // Sauvegarder l'utilisateur dans la base de données
     await newUser.save();
     res.status(201).json({ message: "Utilisateur créé avec succès", user: newUser });
   } catch (error) {
@@ -38,13 +37,11 @@ exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Rechercher l'utilisateur par email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Utilisateur non trouvé" });
     }
 
-    // Comparer les mots de passe
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Mot de passe incorrect" });
@@ -57,33 +54,16 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-// Fetch the user by email (e.g., for Google login or profile retrieval)
-exports.getGoogleUser = async (req, res) => {
-  const { email } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé" });
-    }
-    res.status(200).json({ user });
-  } catch (error) {
-    console.error("Erreur lors de la récupération de l'utilisateur :", error);
-    res.status(500).json({ message: "Erreur lors de la récupération de l'utilisateur", error });
-  }
-};
-
+// **Ajout de la fonction de mise à jour du profil utilisateur**
 exports.updateProfile = async (req, res) => {
   const { email, nom, prenom, dateNaissance, adresse, numeroTelephone } = req.body;
 
   try {
-    // Vérifier que l'utilisateur existe
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
 
-    // Mettre à jour les informations de l'utilisateur
     user.nom = nom || user.nom;
     user.prenom = prenom || user.prenom;
     user.dateNaissance = dateNaissance || user.dateNaissance;

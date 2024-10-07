@@ -2,16 +2,16 @@ const express = require("express");
 const router = express.Router();
 const { registerUser, loginUser, getGoogleUser, updateUserProfile } = require("../controllers/auth");
 
-// Route for registering a new user
+// Route pour créer un utilisateur
 router.post("/register", registerUser);
 
-// Route for user login
+// Route pour connecter un utilisateur
 router.post("/login", loginUser);
 
-// Route for retrieving user details using Google ID
+// Route pour récupérer l'utilisateur Google par email
 router.post("/google-user", getGoogleUser);
 
-// Route for updating user profile
+// Route pour mettre à jour le profil utilisateur
 router.put("/update-profile", updateUserProfile);
 
 module.exports = router;

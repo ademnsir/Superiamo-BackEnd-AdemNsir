@@ -26,7 +26,7 @@ app.use(express.json());
 // Configuration CORS pour les environnements local et déployé
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://visionary-starburst-bb6b1f.netlify.app"], // Ajoutez les domaines autorisés
+    origin: ["https://visionary-starburst-bb6b1f.netlify.app"], // Ajoutez les domaines autorisés
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })

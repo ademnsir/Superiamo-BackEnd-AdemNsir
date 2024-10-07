@@ -1,29 +1,11 @@
-const bcrypt = require("bcryptjs");
-const Joi = require("joi");
-const User = require("../models/User");
+// controllers/auth.js
 
-// Schéma de validation pour l'enregistrement et la mise à jour de profil
-const userValidationSchema = Joi.object({
-  nom: Joi.string().min(2).max(30).required(),
-  prenom: Joi.string().min(2).max(30).required(),
-  email: Joi.string().email().required(),
-  password: Joi.string().min(6),
-  dateNaissance: Joi.date().iso(),
-  adresse: Joi.string().min(5),
-  numeroTelephone: Joi.string().pattern(/^[0-9]{10}$/).messages({
-    "string.pattern.base": "Le numéro de téléphone doit comporter exactement 10 chiffres.",
-  }),
-});
+const bcrypt = require("bcryptjs");
+const User = require("../models/User");
 
 // Contrôleur pour l'enregistrement des utilisateurs
 exports.registerUser = async (req, res) => {
   const { nom, prenom, email, password, dateNaissance, adresse, numeroTelephone } = req.body;
-
-  // Valider les données reçues
-  const { error } = userValidationSchema.validate(req.body, { abortEarly: false });
-  if (error) {
-    return res.status(400).json({ message: error.details.map((err) => err.message).join(", ") });
-  }
 
   try {
     const userExists = await User.findOne({ email });
@@ -72,7 +54,6 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-// Contrôleur pour obtenir un utilisateur Google
 exports.getGoogleUser = async (req, res) => {
   const { email } = req.body;
 
@@ -81,6 +62,7 @@ exports.getGoogleUser = async (req, res) => {
   }
 
   try {
+    // Rechercher l'utilisateur par email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
@@ -93,37 +75,32 @@ exports.getGoogleUser = async (req, res) => {
   }
 };
 
+
 // Contrôleur pour mettre à jour le profil de l'utilisateur
 exports.updateProfile = async (req, res) => {
-  const { email, nom, prenom, dateNaissance, adresse, numeroTelephone, password } = req.body;
+  const { email, nom, prenom, dateNaissance, adresse, numeroTelephone } = req.body;
 
   if (!email) {
     return res.status(400).json({ message: "L'email est requis pour mettre à jour le profil." });
   }
 
-  // Valider les données reçues avec Joi
-  const { error } = userValidationSchema.validate(req.body, { abortEarly: false });
-  if (error) {
-    return res.status(400).json({ message: error.details.map((err) => err.message).join(", ") });
-  }
-
   try {
+    // Rechercher l'utilisateur par email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
+    // Mettre à jour les informations de l'utilisateur
     user.nom = nom || user.nom;
     user.prenom = prenom || user.prenom;
     user.dateNaissance = dateNaissance || user.dateNaissance;
     user.adresse = adresse || user.adresse;
     user.numeroTelephone = numeroTelephone || user.numeroTelephone;
 
-    if (password) {
-      user.password = await bcrypt.hash(password, 10);
-    }
-
+    // Enregistrer les modifications
     await user.save();
+
     res.status(200).json({ message: "Profil mis à jour avec succès", user });
   } catch (error) {
     console.error("Erreur lors de la mise à jour du profil :", error);

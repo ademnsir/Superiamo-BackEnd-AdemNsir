@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema({
   },
   numeroTelephone: {
     type: String,
-    match: /^[0-9]{10}$/, // Doit correspondre à un numéro de téléphone à 10 chiffres
+    match: /^[0-9]{8}$/, // Doit correspondre à un numéro de téléphone à 10 chiffres
   },
   password: {
     type: String,

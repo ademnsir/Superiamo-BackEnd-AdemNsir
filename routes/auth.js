@@ -8,10 +8,10 @@ router.post("/register", registerUser);
 // Route pour connecter un utilisateur
 router.post("/login", loginUser);
 
-// Nouvelle route pour récupérer les informations d'un utilisateur via son email (Google)
+// Route pour récupérer les informations d'un utilisateur via son email (Google)
 router.post("/google-user", getGoogleUser);
 
-// Nouvelle route pour mettre à jour le profil utilisateur
+// Route pour mettre à jour le profil utilisateur
 router.put("/update-profile", updateProfile);
 
 module.exports = router;

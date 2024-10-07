@@ -3,39 +3,36 @@ const mongoose = require("mongoose");
 const UserSchema = new mongoose.Schema({
   nom: {
     type: String,
-    required: true,
   },
   prenom: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
-    required: true,
-    unique: true,
   },
-  googleId: {
-    type: String, // Champ pour stocker l'ID Google
-    unique: true,
+  datenaissance: {
+    type: String,
   },
-  githubId: {
-    type: String, // Champ pour stocker l'ID GitHub
-    unique: true,
-  },
-  dateNaissance: {
-    type: Date,
+  telephone: {
+    type: String,
   },
   adresse: {
     type: String,
-  },
-  numeroTelephone: {
-    type: String,
-    match: /^[0-9]{8}$/, // Doit correspondre à un numéro de téléphone à 8 chiffres
-  },
-  password: {
-    type: String,
-    minlength: 6,
-  },
+  }
 });
 
-module.exports = mongoose.model("User", UserSchema);
+UserSchema.pre('save', async function (next) {
+  try {
+    if (!this.id) {
+      // Générez un identifiant unique si celui-ci n'est pas déjà défini
+      const count = await mongoose.model('user').countDocuments();
+      this.id = count + 1;
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+const User = mongoose.model("user", UserSchema);
+module.exports = User;

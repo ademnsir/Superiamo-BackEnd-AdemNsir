@@ -1,20 +1,13 @@
+// controllers/auth.js
+const { verifyToken } = require('../middleware/token');
+
 const express = require("express");
 const router = express.Router();
-const { registerUser, loginUser, updateProfile, getGoogleUser, getGithubUser } = require("../controllers/auth");
+const AuthController =require ("../controllers/auth")
 
-// Route pour créer un utilisateur
-router.post("/register", registerUser);
+router.route("/register").post(AuthController.register);
+router.route("/update").post(AuthController.updateUserByEmail);
+router.route("/getuser").get(verifyToken,AuthController.getUserByEmail);
 
-// Route pour connecter un utilisateur
-router.post("/login", loginUser);
-
-// Route pour récupérer les informations d'un utilisateur via son email (Google)
-router.post("/google-user", getGoogleUser);
-
-// Route pour récupérer les informations d'un utilisateur via son nom et prénom (GitHub)
-router.post("/github-user", getGithubUser);
-
-// Route pour mettre à jour le profil utilisateur
-router.put("/update-profile", updateProfile);
 
 module.exports = router;

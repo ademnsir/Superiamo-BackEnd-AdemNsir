@@ -73,21 +73,24 @@ exports.getGoogleUser = async (req, res) => {
   }
 };
 
-// Update the user profile
-exports.updateUserProfile = async (req, res) => {
+exports.updateProfile = async (req, res) => {
   const { email, nom, prenom, dateNaissance, adresse, numeroTelephone } = req.body;
 
   try {
-    const user = await User.findOneAndUpdate(
-      { email },
-      { nom, prenom, dateNaissance, adresse, numeroTelephone },
-      { new: true }
-    );
-
+    // Vérifier que l'utilisateur existe
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé" });
     }
 
+    // Mettre à jour les informations de l'utilisateur
+    user.nom = nom || user.nom;
+    user.prenom = prenom || user.prenom;
+    user.dateNaissance = dateNaissance || user.dateNaissance;
+    user.adresse = adresse || user.adresse;
+    user.numeroTelephone = numeroTelephone || user.numeroTelephone;
+
+    await user.save();
     res.status(200).json({ message: "Profil mis à jour avec succès", user });
   } catch (error) {
     console.error("Erreur lors de la mise à jour du profil :", error);

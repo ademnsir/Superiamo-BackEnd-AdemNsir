@@ -12,6 +12,6 @@ router.post("/login", loginUser);
 router.post("/google-user", getGoogleUser);
 
 // Route pour mettre à jour le profil utilisateur
-router.put("/update-profile", updateUserProfile);
+router.put("/update-profile", updateProfile);
 
 module.exports = router;

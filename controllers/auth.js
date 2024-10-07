@@ -53,7 +53,26 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la connexion", error });
   }
 };
+exports.getGoogleUser = async (req, res) => {
+  const { email } = req.body;
 
+  if (!email) {
+    return res.status(400).json({ message: "L'email est requis." });
+  }
+
+  try {
+    // Rechercher l'utilisateur par email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé." });
+    }
+
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'utilisateur :", error);
+    res.status(500).json({ message: "Erreur lors de la récupération de l'utilisateur.", error });
+  }
+};
 // **Ajout de la fonction de mise à jour du profil utilisateur**
 exports.updateProfile = async (req, res) => {
   const { email, nom, prenom, dateNaissance, adresse, numeroTelephone } = req.body;

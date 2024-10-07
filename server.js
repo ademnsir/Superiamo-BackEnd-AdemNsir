@@ -2,8 +2,10 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
-const fetch = require("node-fetch"); // Assurez-vous d'installer 'node-fetch'
-const authRoutes = require("./routes/auth");
+
+const fetch = require("node-fetch");
+
+
 
 // Charger les variables d'environnement
 dotenv.config({ path: "./.env" });
@@ -26,7 +28,7 @@ app.use(express.json());
 // Configuration CORS pour les environnements local et déployé
 app.use(
   cors({
-    origin: ["https://visionary-starburst-bb6b1f.netlify.app"], // Ajoutez les domaines autorisés
+    origin: "https://visionary-starburst-bb6b1f.netlify.app", // Remplacez par votre domaine
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -82,6 +84,7 @@ app.post("/api/validate-address", async (req, res) => {
 });
 
 // Routes d'authentification
+const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
 // Route de base pour vérifier le serveur

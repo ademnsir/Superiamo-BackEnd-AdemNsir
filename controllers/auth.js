@@ -1,5 +1,3 @@
-// controllers/auth.js
-
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
@@ -54,16 +52,16 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-exports.getGoogleUser = async (req, res) => {
-  const { email } = req.body;
+// Contrôleur pour obtenir un utilisateur Google ou GitHub
+exports.getGoogleOrGithubUser = async (req, res) => {
+  const { email, nom, prenom } = req.body;
 
   if (!email) {
     return res.status(400).json({ message: "L'email est requis." });
   }
 
   try {
-    // Rechercher l'utilisateur par email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, nom, prenom });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
@@ -75,32 +73,31 @@ exports.getGoogleUser = async (req, res) => {
   }
 };
 
-
 // Contrôleur pour mettre à jour le profil de l'utilisateur
 exports.updateProfile = async (req, res) => {
-  const { email, nom, prenom, dateNaissance, adresse, numeroTelephone } = req.body;
+  const { email, nom, prenom, dateNaissance, adresse, numeroTelephone, password } = req.body;
 
   if (!email) {
     return res.status(400).json({ message: "L'email est requis pour mettre à jour le profil." });
   }
 
   try {
-    // Rechercher l'utilisateur par email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
     }
 
-    // Mettre à jour les informations de l'utilisateur
     user.nom = nom || user.nom;
     user.prenom = prenom || user.prenom;
     user.dateNaissance = dateNaissance || user.dateNaissance;
     user.adresse = adresse || user.adresse;
     user.numeroTelephone = numeroTelephone || user.numeroTelephone;
 
-    // Enregistrer les modifications
-    await user.save();
+    if (password) {
+      user.password = await bcrypt.hash(password, 10);
+    }
 
+    await user.save();
     res.status(200).json({ message: "Profil mis à jour avec succès", user });
   } catch (error) {
     console.error("Erreur lors de la mise à jour du profil :", error);

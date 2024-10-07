@@ -15,7 +15,11 @@ const UserSchema = new mongoose.Schema({
     unique: true,
   },
   googleId: {
-    type: String, // Champ ajouté pour stocker l'ID Google
+    type: String, // Champ pour stocker l'ID Google
+    unique: true,
+  },
+  githubId: {
+    type: String, // Champ pour stocker l'ID GitHub
     unique: true,
   },
   dateNaissance: {
@@ -26,7 +30,7 @@ const UserSchema = new mongoose.Schema({
   },
   numeroTelephone: {
     type: String,
-    match: /^[0-9]{8}$/, // Doit correspondre à un numéro de téléphone à 10 chiffres
+    match: /^[0-9]{8}$/, // Doit correspondre à un numéro de téléphone à 8 chiffres
   },
   password: {
     type: String,

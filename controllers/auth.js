@@ -76,6 +76,7 @@ exports.getGoogleUser = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la récupération de l'utilisateur.", error });
   }
 };
+// Contrôleur pour récupérer un utilisateur via GitHub (par nom et prénom)
 exports.getGithubUser = async (req, res) => {
   const { nom, prenom } = req.body;
 
@@ -84,6 +85,7 @@ exports.getGithubUser = async (req, res) => {
   }
 
   try {
+    // Rechercher l'utilisateur par nom et prénom
     const user = await User.findOne({ nom, prenom });
     if (!user) {
       return res.status(404).json({ message: "Utilisateur non trouvé." });
@@ -95,6 +97,7 @@ exports.getGithubUser = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la récupération de l'utilisateur.", error });
   }
 };
+
 
 // Contrôleur pour mettre à jour le profil de l'utilisateur
 exports.updateProfile = async (req, res) => {

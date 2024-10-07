@@ -11,7 +11,7 @@ router.post("/login", loginUser);
 // Route pour récupérer les informations d'un utilisateur via son email (Google)
 router.post("/google-user", getGoogleUser);
 
-// **NOUVELLE** Route pour récupérer les informations d'un utilisateur via son nom et prénom (GitHub)
+// Route pour récupérer les informations d'un utilisateur via son nom et prénom (GitHub)
 router.post("/github-user", getGithubUser);
 
 // Route pour mettre à jour le profil utilisateur

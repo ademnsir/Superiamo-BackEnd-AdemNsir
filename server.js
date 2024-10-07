@@ -2,9 +2,13 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const fetch = require("node-fetch"); // Assurez-vous d'installer 'node-fetch'
+const authRoutes = require("./routes/auth");
 
+// Charger les variables d'environnement
 dotenv.config({ path: "./.env" });
 
+// Vérifier la présence des variables d'environnement
 if (!process.env.MONGO_URI) {
   console.error("Erreur : MONGO_URI est introuvable. Vérifiez votre fichier .env.");
 }
@@ -13,14 +17,16 @@ if (!process.env.PORT) {
   console.error("Erreur : PORT est introuvable. Vérifiez votre fichier .env.");
 }
 
+// Connexion à la base de données MongoDB
 connectDB();
 
 const app = express();
 app.use(express.json());
 
+// Configuration CORS pour les environnements local et déployé
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:3000", "https://visionary-starburst-bb6b1f.netlify.app"], // Ajoutez les domaines autorisés
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -75,14 +81,14 @@ app.post("/api/validate-address", async (req, res) => {
   }
 });
 
-
-const authRoutes = require("./routes/auth");
+// Routes d'authentification
 app.use("/api/auth", authRoutes);
 
+// Route de base pour vérifier le serveur
 app.get("/", (req, res) => {
   res.send("Bonjour le serveur est en marche");
 });
 
+// Définir le port et lancer le serveur
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

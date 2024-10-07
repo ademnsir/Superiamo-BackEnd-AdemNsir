@@ -28,11 +28,12 @@ app.use(express.json());
 // Configuration CORS pour les environnements local et déployé
 app.use(
   cors({
-    origin: "https://visionary-starburst-bb6b1f.netlify.app", // Remplacez par votre domaine
+    origin: ["https://visionary-starburst-bb6b1f.netlify.app"], // Vérifiez que le domaine est bien ajouté
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
+
 
 // Fonction pour calculer la distance entre deux points géographiques
 const calculateDistance = (lat1, lon1, lat2, lon2) => {

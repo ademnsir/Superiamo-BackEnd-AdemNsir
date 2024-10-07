@@ -3,17 +3,27 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
-// Contrôleur pour l'enregistrement des utilisateurs
 exports.registerUser = async (req, res) => {
   const { nom, prenom, email, password, dateNaissance, adresse, numeroTelephone } = req.body;
 
   try {
+    // Vérifiez que toutes les informations nécessaires sont présentes
+    if (!nom || !prenom || !email || !password) {
+      return res.status(400).json({ message: "Veuillez fournir tous les champs requis" });
+    }
+
+    console.log("Starting user registration...");
+    
+    // Vérifier si l'utilisateur existe déjà
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "Utilisateur déjà enregistré" });
     }
 
+    // Hachage du mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Créer le nouvel utilisateur
     const newUser = new User({
       nom,
       prenom,
@@ -25,10 +35,12 @@ exports.registerUser = async (req, res) => {
     });
 
     await newUser.save();
+
+    console.log("User successfully registered:", newUser);
     res.status(201).json({ message: "Utilisateur créé avec succès", user: newUser });
   } catch (error) {
     console.error("Erreur lors de l'enregistrement de l'utilisateur :", error);
-    res.status(500).json({ message: "Erreur lors de l'enregistrement de l'utilisateur", error });
+    res.status(500).json({ message: "Erreur lors de l'enregistrement de l'utilisateur", error: error.message });
   }
 };
 

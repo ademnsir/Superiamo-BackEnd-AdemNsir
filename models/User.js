@@ -14,9 +14,9 @@ const UserSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  password: {
-    type: String,
-    required: true,
+  googleId: {
+    type: String, // New field to store Google ID
+    unique: true,
   },
   dateNaissance: {
     type: Date,
@@ -25,6 +25,9 @@ const UserSchema = new mongoose.Schema({
     type: String,
   },
   numeroTelephone: {
+    type: String,
+  },
+  password: {
     type: String,
   },
 });

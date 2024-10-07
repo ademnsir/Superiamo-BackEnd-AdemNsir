@@ -56,3 +56,45 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: "Erreur lors de la connexion", error });
   }
 };
+
+// Function to get user details based on Google ID or email
+exports.getGoogleUser = async (req, res) => {
+  const { googleId, email } = req.body;
+
+  try {
+    // Search for a user by Google ID or email
+    const user = await User.findOne({ $or: [{ googleId }, { email }] });
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    res.status(200).json({ user });
+  } catch (error) {
+    console.error("Erreur lors de la recherche de l'utilisateur :", error);
+    res.status(500).json({ message: "Erreur lors de la recherche de l'utilisateur", error });
+  }
+};
+
+// Function to update user profile details
+exports.updateUserProfile = async (req, res) => {
+  const { email, nom, prenom, dateNaissance, adresse, numeroTelephone } = req.body;
+
+  try {
+    // Find and update the user by email
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { nom, prenom, dateNaissance, adresse, numeroTelephone },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    res.status(200).json({ message: "Profil mis à jour avec succès", user: updatedUser });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du profil :", error);
+    res.status(500).json({ message: "Erreur lors de la mise à jour du profil", error });
+  }
+};
+

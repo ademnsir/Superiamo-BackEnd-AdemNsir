@@ -2,34 +2,44 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
 exports.registerUser = async (req, res) => {
-  const { nom, prenom, email, password, dateNaissance, adresse, numeroTelephone, googleId, githubId } = req.body;
+  const { nom, prenom, email, password, dateNaissance, adresse, numeroTelephone } = req.body;
 
   try {
-    if (!nom || !prenom || !email) {
-      return res.status(400).json({ message: "Missing required fields." });
+    // Vérifiez que l'email est présent
+    if (!email) {
+      return res.status(400).json({ message: "L'email est requis pour l'enregistrement." });
     }
 
+    // Vérifier si l'utilisateur existe déjà
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(200).json({ message: "User already exists.", user: userExists });
+      return res.status(200).json({ message: "Utilisateur déjà enregistré", user: userExists });
     }
 
+    // Utiliser un mot de passe par défaut si non fourni (uniquement pour Google)
+    const defaultPassword = password || "default_password"; // Définir un mot de passe par défaut
+
+    // Hachage du mot de passe
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+
+    // Créer le nouvel utilisateur
     const newUser = new User({
-      nom,
-      prenom,
+      nom: nom || "Nom par défaut",
+      prenom: prenom || "Prénom par défaut",
       email,
-      password: password ? await bcrypt.hash(password, 10) : undefined,
+      password: hashedPassword,
       dateNaissance,
       adresse,
       numeroTelephone,
-      googleId,
-      githubId,
     });
 
     await newUser.save();
-    res.status(201).json({ message: "User created successfully.", user: newUser });
+
+    console.log("Utilisateur enregistré avec succès :", newUser);
+    res.status(201).json({ message: "Utilisateur créé avec succès", user: newUser });
   } catch (error) {
-    res.status(500).json({ message: "Error registering user", error });
+    console.error("Erreur lors de l'enregistrement de l'utilisateur :", error);
+    res.status(500).json({ message: "Erreur lors de l'enregistrement de l'utilisateur", error: error.message });
   }
 };
 

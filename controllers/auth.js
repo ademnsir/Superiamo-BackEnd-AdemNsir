@@ -1,144 +1,66 @@
-// controllers/auth.js
-
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
 exports.registerUser = async (req, res) => {
-  const { nom, prenom, email, password, dateNaissance, adresse, numeroTelephone } = req.body;
+  const { nom, prenom, email, password, dateNaissance, adresse, numeroTelephone, googleId, githubId } = req.body;
 
   try {
-    // Vérifiez que toutes les informations nécessaires sont présentes
-    if (!nom || !prenom || !email || !password) {
-      return res.status(400).json({ message: "Veuillez fournir tous les champs requis" });
+    if (!nom || !prenom || !email) {
+      return res.status(400).json({ message: "Missing required fields." });
     }
 
-    console.log("Starting user registration...");
-    
-    // Vérifier si l'utilisateur existe déjà
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: "Utilisateur déjà enregistré" });
+      return res.status(200).json({ message: "User already exists.", user: userExists });
     }
 
-    // Hachage du mot de passe
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Créer le nouvel utilisateur
     const newUser = new User({
       nom,
       prenom,
       email,
-      password: hashedPassword,
+      password: password ? await bcrypt.hash(password, 10) : undefined,
       dateNaissance,
       adresse,
       numeroTelephone,
+      googleId,
+      githubId,
     });
 
     await newUser.save();
-
-    console.log("User successfully registered:", newUser);
-    res.status(201).json({ message: "Utilisateur créé avec succès", user: newUser });
+    res.status(201).json({ message: "User created successfully.", user: newUser });
   } catch (error) {
-    console.error("Erreur lors de l'enregistrement de l'utilisateur :", error);
-    res.status(500).json({ message: "Erreur lors de l'enregistrement de l'utilisateur", error: error.message });
-  }
-};
-
-
-
-// Contrôleur pour la connexion des utilisateurs
-exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "Utilisateur non trouvé" });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Mot de passe incorrect" });
-    }
-
-    res.status(200).json({ message: "Connexion réussie", user });
-  } catch (error) {
-    console.error("Erreur lors de la connexion :", error);
-    res.status(500).json({ message: "Erreur lors de la connexion", error });
+    res.status(500).json({ message: "Error registering user", error });
   }
 };
 
 exports.getGoogleUser = async (req, res) => {
   const { email } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ message: "L'email est requis." });
-  }
-
   try {
-    // Rechercher l'utilisateur par email
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé." });
-    }
-
+    if (!user) return res.status(404).json({ message: "User not found." });
     res.status(200).json({ user });
   } catch (error) {
-    console.error("Erreur lors de la récupération de l'utilisateur :", error);
-    res.status(500).json({ message: "Erreur lors de la récupération de l'utilisateur.", error });
-  }
-};
-// Contrôleur pour récupérer un utilisateur via GitHub (par nom et prénom)
-exports.getGithubUser = async (req, res) => {
-  const { nom, prenom } = req.body;
-
-  if (!nom || !prenom) {
-    return res.status(400).json({ message: "Le nom et le prénom sont requis pour rechercher un utilisateur GitHub." });
-  }
-
-  try {
-    // Rechercher l'utilisateur par nom et prénom
-    const user = await User.findOne({ nom, prenom });
-    if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé." });
-    }
-
-    res.status(200).json({ user });
-  } catch (error) {
-    console.error("Erreur lors de la récupération de l'utilisateur :", error);
-    res.status(500).json({ message: "Erreur lors de la récupération de l'utilisateur.", error });
+    res.status(500).json({ message: "Error fetching user.", error });
   }
 };
 
-
-// Contrôleur pour mettre à jour le profil de l'utilisateur
 exports.updateProfile = async (req, res) => {
   const { email, nom, prenom, dateNaissance, adresse, numeroTelephone } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ message: "L'email est requis pour mettre à jour le profil." });
-  }
-
   try {
-    // Rechercher l'utilisateur par email
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "Utilisateur non trouvé." });
-    }
+    if (!user) return res.status(404).json({ message: "User not found." });
 
-    // Mettre à jour les informations de l'utilisateur
     user.nom = nom || user.nom;
     user.prenom = prenom || user.prenom;
     user.dateNaissance = dateNaissance || user.dateNaissance;
     user.adresse = adresse || user.adresse;
     user.numeroTelephone = numeroTelephone || user.numeroTelephone;
 
-    // Enregistrer les modifications
     await user.save();
-
-    res.status(200).json({ message: "Profil mis à jour avec succès", user });
+    res.status(200).json({ message: "Profile updated successfully.", user });
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du profil :", error);
-    res.status(500).json({ message: "Erreur lors de la mise à jour du profil", error });
+    res.status(500).json({ message: "Error updating profile.", error });
   }
 };

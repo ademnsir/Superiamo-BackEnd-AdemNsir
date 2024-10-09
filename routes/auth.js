@@ -1,14 +1,20 @@
 const express = require("express");
 const router = express.Router();
-const { register, updateUserByEmail, getUserByEmail } = require("../controllers/auth");
+const { registerUser, loginUser, updateProfile, getGoogleUser, getGithubUser } = require("../controllers/auth");
 
-// Route pour créer un utilisateur lors de la connexion initiale (Google/GitHub)
-router.post("/register", register);
+// Route pour créer un utilisateur
+router.post("/register", registerUser);
 
-// Route pour mettre à jour le profil d'un utilisateur
-router.post("/update", updateUserByEmail);
+// Route pour connecter un utilisateur
+router.post("/login", loginUser);
 
-// Route pour récupérer les informations de l'utilisateur par email
-router.get("/getuser", getUserByEmail);
+// Route pour récupérer les informations d'un utilisateur via son email (Google)
+router.post("/google-user", getGoogleUser);
+
+// Route pour récupérer les informations d'un utilisateur via son nom et prénom (GitHub)
+router.post("/github-user", getGithubUser);
+
+// Route pour mettre à jour le profil utilisateur
+router.put("/update-profile", updateProfile);
 
 module.exports = router;
